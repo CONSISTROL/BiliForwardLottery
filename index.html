@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>哔哩转发抽奖</title>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body onload="init()">
+
+
+    <div style="display: flex; flex-direction: column; text-align: center;">
+        <h1>哔哩转发抽奖</h1>
+        <p>*仅供离线使用</p>
+        <p>*请使用chrome上传文件: www.bilibili.com.har</p>
+        <div>
+            <div class="input-group" style="width: 400px; margin: auto;">
+                <input type="file" class="form-control" id="inputGroupFile" aria-describedby="inputGroupFileAddon"
+                    aria-label="Upload">
+                <button type="button" class="btn btn-warning" id="inputGroupFileAddon"
+                    onclick="uploadFile()">上传</button>
+                <button type="button" class="btn btn-primary" onclick="getRandomUser()">rua!</button>
+            </div>
+            <br>
+            <h1>中奖用户</h1>
+            <a target="_blank" id="message_url">
+                <img style=" margin: auto;" id="face" alt="User Face">
+            </a>
+            <ul style=" margin: auto; list-style-type: none; padding: 0;">
+                <a target="_blank" id="space_url">
+                    <li id="name"></li>
+                </a>
+                <li id="mid"></li>
+                <li id="orig_text"></li>
+            </ul>
+        </div>
+        <h1 id="count">参与用户数量:</h1>
+        <ul id="userList"></ul>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p>&copy; 2023 Bili Forward Lottery. All rights reserved.</p>
+                </div>
+                <div class="col-md-6">
+                    <nav>
+                        <ul>
+                            <li><a href="#">返回顶部</a></li>
+                            <li><a target="_blank" href="https://space.bilibili.com/672328094">友情链接</a></li>
+                            <li><a target="_blank" href="https://www.bilibili.com/opus/787973877358657536">背景图来源</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        window.onload = function () {
+            getAllUsers();
+        };
+
+        async function uploadFile() {
+            const input = document.getElementById('inputGroupFile');
+            const file = input.files[0];
+
+            if (file) {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                try {
+                    const response = await fetch('http://localhost:3000/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.text();
+                    console.log(data);
+                    // 处理上传成功后的逻辑
+                    getAllUsers();
+                } catch (error) {
+                    console.error('上传失败:', error);
+                    // 处理上传失败后的逻辑
+                };
+            } else {
+                console.log('未选择文件');
+            }
+        }
+
+        // 发起 GET 请求获取数据
+        async function getAllUsers() {
+            axios.get('http://localhost:3000/')
+                .then(response => {
+                    const data = response.data;
+                    const count = document.getElementById('count');
+                    count.textContent = "参与用户数量: " + data.count;
+
+                    // 获取列表容器
+                    const userList = document.getElementById('userList');
+                    userList.innerHTML = '';
+
+                    // 循环遍历用户数据并生成列表项
+                    data.users.forEach(user => {
+                        // 创建列表项元素
+                        const listItem = document.createElement('li');
+
+                        // 创建用户信息元素
+                        const userFace = document.createElement('img');
+                        userFace.src = user.face;
+                        userFace.alt = 'User Face';
+
+                        const userName = document.createElement('div');
+                        userName.textContent = user.name;
+
+                        const userMid = document.createElement('div');
+                        userMid.textContent = user.mid;
+
+                        const userOrigText = document.createElement('div');
+                        userOrigText.textContent = user.orig_text;
+
+                        // 将用户信息元素添加到列表项中
+                        listItem.appendChild(userFace);
+                        listItem.appendChild(userName);
+                        listItem.appendChild(userMid);
+                        listItem.appendChild(userOrigText);
+
+                        // 将列表项添加到列表容器中
+                        userList.appendChild(listItem);
+
+                    });
+
+                    const face = document.getElementById('face');
+                    face.src = data.randomUser.face;
+
+                    const mid = document.getElementById('mid');
+                    mid.textContent = data.randomUser.mid;
+
+                    const name = document.getElementById('name');
+                    name.textContent = data.randomUser.name;
+
+                    const orig_text = document.getElementById('orig_text');
+                    orig_text.textContent = data.randomUser.orig_text;
+
+                    const message_url = document.getElementById('message_url');
+                    message_url.href = 'https://message.bilibili.com/?spm_id_from=333.999.0.0#/whisper/mid' + data.randomUser.mid;
+
+                    const space_url = document.getElementById('space_url');
+                    space_url.href = 'https://space.bilibili.com/' + data.randomUser.mid + '/dynamic'
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        // 发起 GET 请求获取随机用户
+        async function getRandomUser() {
+            axios.get('http://localhost:3000/lottery')
+                .then(response => {
+                    const data = response.data;
+
+                    const face = document.getElementById('face');
+                    face.src = data.randomUser.face;
+
+                    const mid = document.getElementById('mid');
+                    mid.textContent = data.randomUser.mid;
+
+                    const name = document.getElementById('name');
+                    name.textContent = data.randomUser.name;
+
+                    const orig_text = document.getElementById('orig_text');
+                    orig_text.textContent = data.randomUser.orig_text;
+
+                    const message_url = document.getElementById('message_url');
+                    message_url.href = 'https://message.bilibili.com/?spm_id_from=333.999.0.0#/whisper/mid' + data.randomUser.mid;
+
+                    const space_url = document.getElementById('space_url');
+                    space_url.href = 'https://space.bilibili.com/' + data.randomUser.mid + '/dynamic'
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
+    <script src="index.js"></script>
+    <script src="node_modules/axios/dist/axios.min.js"></script>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+</body>
+
+</html>

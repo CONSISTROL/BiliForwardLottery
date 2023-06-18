@@ -1,0 +1,52 @@
+@font-face {
+    /* 定义字体名称 */
+    font-family: "CustomFont";
+    /* 指定字体文件的路径 */
+    src: url("fonts/萝莉体.ttf");
+}
+
+body {
+    /* 应用自定义字体 */
+    font-family: "CustomFont", sans-serif;
+    background-image: url('background.png');
+    /* 设置背景颜色及透明度 */
+    background-color: rgba(0, 0, 0, 0.7);
+    /* 背景混合模式 */
+    background-blend-mode: multiply;
+    background-size: 100%;
+    color: rgba(255, 255, 255, 1);
+}
+
+#userList {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px;
+}
+
+img {
+    width: 150px;
+    height: auto;
+}
+
+h1 {
+    margin-top: 50px;
+}
+
+a {
+    color: red;
+    /* 设置链接的默认颜色为蓝色 */
+}
+
+a:hover {
+    color: yellow;
+    /* 设置链接在鼠标悬停时的颜色为红色 */
+}
