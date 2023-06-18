@@ -63,15 +63,19 @@ async function parseForwards() {
         return;
     }
     forwards.forEach(element => {
+        // console.log(element);
+        if (!element.data || !element.data.items || !Array.isArray(element.data.items)) {
+            return;
+        }
         element.data.items.forEach(element => {
             mid = element.user.mid;
             face = element.user.face;
             name = element.user.name;
-            orig_text = element.desc.rich_text_nodes[0].orig_text;
+            orig_text = element.desc.text;
             map.set(mid, { mid, name, face, orig_text });
         });
     });
-    console.log("存留转发量: ", map.size);
+    console.log("有效转发量: ", map.size);
     // // 遍历键值对
     // map.forEach((value, key) => {
     //     console.log(key, value.name);

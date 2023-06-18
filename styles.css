@@ -42,11 +42,39 @@ h1 {
 }
 
 a {
-    color: red;
-    /* 设置链接的默认颜色为蓝色 */
+    color: white;
 }
 
 a:hover {
     color: yellow;
-    /* 设置链接在鼠标悬停时的颜色为红色 */
+}
+
+/* Webkit: Chrome、Safari */
+.custom-scrollbar::-webkit-scrollbar {
+    /* 宽度 */
+    width: 8px;
+    /* 背景色 */
+    background-color: rgba(69, 69, 68, 0.7);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    /* 滑块背景色 */
+    background-color: rgba(247, 212, 203, 0.7);
+    /* 边框圆角 */
+    border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    /* 轨道背景色 */
+    background-color: rgba(69, 69, 68, 0.7);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    /* 鼠标悬停时的滑块背景色 */
+    background-color: rgba(247, 212, 203, 1);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:active {
+    /* 滑块按下时的背景色 */
+    background-color: rgba(247, 212, 203, 1);
 }
