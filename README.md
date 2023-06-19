@@ -1,5 +1,6 @@
 # [BiliForwardLottery](https://github.com/CONSISTROL/BiliForwardLottery)
 - 项目地址: https://github.com/CONSISTROL/BiliForwardLottery
+- 项目压缩包下载: https://github.com/CONSISTROL/BiliForwardLottery/archive/refs/heads/master.zip
 - 预览地址: https://consistrol.github.io/BiliForwardLottery
 
 ## 使用说明
