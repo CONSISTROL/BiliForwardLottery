@@ -1,31 +1,122 @@
-const express = require('express');
-const app = express();
-const port = 3000;
-const fs = require('fs');
+var jsonData = {};
+var forwards = [];
+var map = new Map();
+var randomUser = {};
 
-let forwards = [];
-let map = new Map();
-let randomUser = {};
+async function uploadFile() {
+    jsonData = {};
+    forwards = [];
+    map = new Map();
+    randomUser = {};
 
-const cors = require('cors');
-
-app.use(cors());
-
-init();
-async function init() {
-    await showBanner();
-    run();
+    const input = document.getElementById('inputGroupFile');
+    const file = input.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            const fileContent = event.target.result;
+            try {
+                jsonData = JSON.parse(fileContent);
+                // 处理jsonData
+                getAllUsers();
+            } catch (error) {
+                console.error('无法解析为JSON:', error);
+            }
+        };
+        reader.readAsText(file);
+    } else {
+        console.log('未选择文件');
+    }
 }
 
-async function showBanner() {
-    const banner = await fs.promises.readFile('banner.txt', 'utf8');
-    console.log(banner);
-}
+async function getAllUsers() {
+    await parseHar();
+    await parseForwards();
+    await lottery();
+    const users = Array.from(map.values());
+    const data = { users, count: map.size, randomUser };
 
-function run() {
-    app.listen(port, () => {
-        console.log(`Server listening on port ${port}`);
+    const count = document.getElementById('count');
+    count.textContent = "参与用户数量: " + data.count;
+
+    // 获取列表容器
+    const userList = document.getElementById('userList');
+    userList.innerHTML = '';
+
+    // 循环遍历用户数据并生成列表项
+    data.users.forEach(user => {
+        // 创建列表项元素
+        const listItem = document.createElement('li');
+
+        // 创建用户信息元素
+        const userFace = document.createElement('img');
+        userFace.src = user.face.replace(/^http:/, 'https:');
+        userFace.alt = '用户头像(加载失败)';
+
+        const userName = document.createElement('div');
+        userName.textContent = user.name;
+
+        const userMid = document.createElement('a');
+        userMid.textContent = user.mid;
+        userMid.href = 'https://space.bilibili.com/' + user.mid + '/dynamic';
+        userMid.target = "_blank";
+
+        const userOrigText = document.createElement('div');
+        userOrigText.textContent = user.orig_text;
+
+        // 将用户信息元素添加到列表项中
+        listItem.appendChild(userFace);
+        listItem.appendChild(userName);
+        listItem.appendChild(userMid);
+        listItem.appendChild(userOrigText);
+
+        // 将列表项添加到列表容器中
+        userList.appendChild(listItem);
+
     });
+
+    const face = document.getElementById('face');
+    face.src = data.randomUser.face;
+
+    const mid = document.getElementById('mid');
+    mid.textContent = data.randomUser.mid;
+
+    const name = document.getElementById('name');
+    name.textContent = data.randomUser.name;
+
+    const orig_text = document.getElementById('orig_text');
+    orig_text.textContent = data.randomUser.orig_text;
+
+    const message_url = document.getElementById('message_url');
+    message_url.href = 'https://message.bilibili.com/?spm_id_from=333.999.0.0#/whisper/mid' + data.randomUser.mid;
+
+    const space_url = document.getElementById('name');
+    space_url.href = 'https://space.bilibili.com/' + data.randomUser.mid + '/dynamic'
+}
+
+async function getRandomUser() {
+    randomUser = {};
+    await lottery();
+    const data = { randomUser };
+
+    const face = document.getElementById('face');
+    face.src = data.randomUser.face;
+
+    const mid = document.getElementById('mid');
+    mid.textContent = data.randomUser.mid;
+
+    const name = document.getElementById('name');
+    name.textContent = data.randomUser.name;
+
+    const orig_text = document.getElementById('orig_text');
+    orig_text.textContent = data.randomUser.orig_text;
+
+    const message_url = document.getElementById('message_url');
+    message_url.href = 'https://message.bilibili.com/?spm_id_from=333.999.0.0#/whisper/mid' + data.randomUser.mid;
+
+    const space_url = document.getElementById('name');
+    space_url.href = 'https://space.bilibili.com/' + data.randomUser.mid + '/dynamic'
+
 }
 
 async function parseHar() {
@@ -33,10 +124,7 @@ async function parseHar() {
         if (forwards.length !== 0) {
             return;
         }
-        const data = await fs.promises.readFile('www.bilibili.com.har', 'utf8');
-        const json = JSON.parse(data);
-        // 处理读取到的JSON数据
-        json.log.entries.forEach(element => {
+        jsonData.log.entries.forEach(element => {
             mimeType = element.response.content.mimeType;
             encoding = element.response.content.encoding;
             if (mimeType !== 'application/json' &&
@@ -78,7 +166,7 @@ async function parseForwards() {
     console.log("有效转发量: ", map.size);
     // // 遍历键值对
     // map.forEach((value, key) => {
-    //     console.log(key, value.name);
+    // console.log(key, value.name);
     // });
 }
 
@@ -93,63 +181,9 @@ async function lottery() {
     let randomIndex = Math.floor(Math.random() * map.size);
     let randomKey;
 
-    for (let i = 0; i <= randomIndex; i++) {
-        randomKey = keysIterator.next().value;
-    }
-
-    // 获取对应的值
-    const randomValue = map.get(randomKey);
-
-    console.log("------[中奖概率🎲:" + 1 / map.size + "]------");
-    console.log('uid: ', randomKey);
-    // console.log('用户信息: ', randomValue);
+    for (let i = 0; i <= randomIndex; i++) { randomKey = keysIterator.next().value; } // 获取对应的值 const
+    randomValue = map.get(randomKey); console.log("------[中奖概率🎲:" + 1 / map.size + "]------"); console.log('uid: ', randomKey);
+    // console.log(' 用户信息: ', randomValue);
 
     randomUser = randomValue;
 }
-
-const multer = require('multer');
-const { log } = require('console');
-const storage = multer.diskStorage({
-    destination: './', // 指定上传文件的存储目录
-    filename: (req, file, cb) => {
-        cb(null, file.fieldname);
-    }
-});
-const upload = multer({ storage });
-app.post('/upload', upload.single('file'), (req, res) => {
-    forwards = [];
-    map.clear();
-    randomUser = {};
-    const file = req.file; // 通过 req.file 获取上传的文件信息
-    if (!file) {
-        res.status(400).send('没有选择文件');
-    } else {
-        // 将文件从临时位置移动到指定位置
-        // const targetPath = file.originalname;
-        const targetPath = 'www.bilibili.com.har';
-        fs.rename(file.path, targetPath, (err) => {
-            if (err) {
-                res.status(500).send('文件保存失败');
-            } else {
-                console.log(file);
-                res.send('文件上传成功');
-            }
-        });
-    }
-});
-
-app.get('/', async (req, res) => {
-    await parseHar();
-    await parseForwards();
-    await lottery();
-    const users = Array.from(map.values());
-    const data = { users, count: map.size, randomUser };
-    res.json(data);
-});
-
-app.get('/lottery', async (req, res) => {
-    randomUser = {};
-    await lottery();
-    const data = { randomUser };
-    res.json(data);
-});
