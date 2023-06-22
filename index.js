@@ -50,7 +50,7 @@ async function getAllUsers() {
 
         // 创建用户信息元素
         const userFace = document.createElement('img');
-        userFace.src = user.face.replace(/^http:/, 'https:');
+        userFace.src = user.face;
         userFace.alt = '【用户头像】';
 
         const userName = document.createElement('div');
@@ -76,7 +76,6 @@ async function getAllUsers() {
 
         // 将列表项添加到列表容器中
         userList.appendChild(listItem);
-
     });
 
     const face = document.getElementById('face');
@@ -166,7 +165,8 @@ async function parseForwards() {
         }
         element.data.items.forEach(element => {
             mid = element.user.mid;
-            face = element.user.face;
+            // face = element.user.face.replace(/^https:/, 'http:');
+            face = element.user.face.replace(/^http:/, 'https:');
             name = element.user.name;
             orig_text = element.desc.text;
             pub_time = element.pub_time;
