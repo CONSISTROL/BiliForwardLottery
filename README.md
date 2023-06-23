@@ -29,5 +29,5 @@
 3. 需要的数据
 - data.items[0-9].user.mid
 - data.items[0-9].user.name
-- data.items[0-9].user.face (不知道为什么上线后无法显示图片😥)
+- data.items[0-9].user.face
 - data.items[0-9].desc.text
